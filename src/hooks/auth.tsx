@@ -18,11 +18,9 @@ interface AuthContextData {
   signOut(): void;
 }
 
-export const AuthContext = createContext<AuthContextData>(
-  {} as AuthContextData,
-);
+const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-export const AuthProvider: React.FC = ({ children }) => {
+const AuthProvider: React.FC = ({ children }) => {
   const [data, setData] = useState<AuthState>(() => {
     const token = localStorage.getItem('@GoBarber:token');
     const user = localStorage.getItem('@GoBarber:user');
@@ -35,21 +33,17 @@ export const AuthProvider: React.FC = ({ children }) => {
   });
 
   const signIn = useCallback(async ({ email, password }) => {
-    try {
-      const response = await api.post('sessions', {
-        email,
-        password,
-      });
+    const response = await api.post('sessions', {
+      email,
+      password,
+    });
 
-      const { token, user } = response.data;
+    const { token, user } = response.data;
 
-      localStorage.setItem('@GoBarber:token', token);
-      localStorage.setItem('@GoBarber:user', JSON.stringify(user));
+    localStorage.setItem('@GoBarber:token', token);
+    localStorage.setItem('@GoBarber:user', JSON.stringify(user));
 
-      setData({ token, user });
-    } catch (err) {
-      console.log(err);
-    }
+    setData({ token, user });
   }, []);
 
   const signOut = useCallback(() => {
@@ -66,7 +60,7 @@ export const AuthProvider: React.FC = ({ children }) => {
   );
 };
 
-export function useAuth(): AuthContextData {
+function useAuth(): AuthContextData {
   const context = useContext(AuthContext);
 
   if (!context) {
@@ -75,3 +69,5 @@ export function useAuth(): AuthContextData {
 
   return context;
 }
+
+export { AuthProvider, useAuth };
